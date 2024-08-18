@@ -1,7 +1,6 @@
 import * as http from "http";
 import { URL } from "url";
 import { fetchTitle } from "./fetchTitle";
-import async from "async";
 import dotenv from "dotenv";
 import { ServerMessages } from "./enums/messages"; // Import the message enum
 import { TitleResult } from "./interfaces/TitleResult";
@@ -12,7 +11,7 @@ dotenv.config();
 // Get the port from environment variables, defaulting to 3000 if not set
 const PORT = process.env.PORT || 3000;
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const reqUrl = new URL(req.url || "", `http://${req.headers.host}`);
 
   const pathname = reqUrl.pathname.replace(/\/$/, ""); // Removes trailing slash
@@ -20,25 +19,25 @@ const server = http.createServer((req, res) => {
   if (pathname === "/I/want/title") {
     const addresses = reqUrl.searchParams.getAll("address");
 
-    async.map(
-      addresses,
-      (
-        address: string,
-        callback: (err: Error | null, result: TitleResult | null) => void
-      ) => {
-        fetchTitle(address, callback);
-      },
-      (err: Error | null | undefined, results: Array<TitleResult | null>) => {
-        if (err) {
-          res.writeHead(500, { "Content-Type": "text/plain" });
-          res.end(ServerMessages.SERVER_ERROR); // Use the enum message
-          return;
-        }
+    if (addresses.length === 0) {
+      // No addresses provided
+      res.writeHead(400, { "Content-Type": "text/html" });
+      res.write("<html><head></head><body>");
+      res.write(`<h1>${ServerMessages.NO_ADDRESSES_PROVIDED}</h1>`); // Use the enum message
+      res.write(
+        "<p>Please provide at least one address in the query parameters.</p>"
+      );
+      res.write("</body></html>");
+      res.end();
+    } else {
+      try {
+        // Use Promise.all to fetch all titles in parallel
+        const results: TitleResult[] = await Promise.all(
+          addresses.map((address) => fetchTitle(address))
+        );
 
-        // Filter out null results
-        const filteredResults = results.filter(
-          (result) => result !== null
-        ) as TitleResult[];
+        // Filter out null results (if needed)
+        const filteredResults = results.filter((result) => result !== null);
 
         res.writeHead(200, { "Content-Type": "text/html" });
         res.write("<html><head></head><body>");
@@ -49,8 +48,11 @@ const server = http.createServer((req, res) => {
         });
         res.write("</ul></body></html>");
         res.end();
+      } catch (error) {
+        res.writeHead(500, { "Content-Type": "text/plain" });
+        res.end(ServerMessages.SERVER_ERROR); // Use the enum message
       }
-    );
+    }
   } else {
     // Return 404 for all other routes
     res.writeHead(404, { "Content-Type": "text/plain" });
