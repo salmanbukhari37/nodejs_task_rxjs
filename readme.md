@@ -25,7 +25,7 @@ npm run dev
 
 ### Final Step:
 
-Copy this endpoint [localhost:3002/I/want/title/?address=google.com&address=www.dawn.com/events/](localhost:3002/I/want/title/?address=google.com&address=www.dawn.com/events/) and paste it in the url of the postman or thunderClient by setting GET method.
+Copy this endpoint [localhost:3003/I/want/title/?address=google.com&address=www.dawn.com/events/](localhost:3003/I/want/title/?address=google.com&address=www.dawn.com/events/) and paste it in the url of the postman or thunderClient by setting GET method.
 
 ### Response:
 
