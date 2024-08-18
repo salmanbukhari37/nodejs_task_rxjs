@@ -3,6 +3,7 @@ import { URL } from "url";
 import { fetchTitle, TitleResult } from "./fetchTitle";
 import async from "async";
 import dotenv from "dotenv";
+import { ServerMessages } from "./enums/messages"; // Import the message enum
 
 // Load environment variables from .env file
 dotenv.config();
@@ -29,7 +30,7 @@ const server = http.createServer((req, res) => {
       (err: Error | null | undefined, results: Array<TitleResult | null>) => {
         if (err) {
           res.writeHead(500, { "Content-Type": "text/plain" });
-          res.end("Server Error");
+          res.end(ServerMessages.SERVER_ERROR); // Use the enum message
           return;
         }
 
@@ -40,7 +41,7 @@ const server = http.createServer((req, res) => {
 
         res.writeHead(200, { "Content-Type": "text/html" });
         res.write("<html><head></head><body>");
-        res.write("<h1>Following are the titles of given websites:</h1>");
+        res.write(`<h1>${ServerMessages.FETCH_TITLES}</h1>`); // Use the enum message
         res.write("<ul>");
         filteredResults.forEach((result) => {
           res.write(`<li>${result.address} - "${result.title}"</li>`);
@@ -52,10 +53,11 @@ const server = http.createServer((req, res) => {
   } else {
     // Return 404 for all other routes
     res.writeHead(404, { "Content-Type": "text/plain" });
-    res.end("404 Not Found");
+    res.end(ServerMessages.NOT_FOUND); // Use the enum message
   }
 });
 
+// Use the port from the .env file
 server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}/`);
+  console.log(`${ServerMessages.SERVER_RUNNING} http://localhost:${PORT}/`); // Use the enum message
 });
