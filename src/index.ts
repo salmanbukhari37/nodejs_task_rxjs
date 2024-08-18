@@ -1,9 +1,10 @@
 import * as http from "http";
 import { URL } from "url";
-import { fetchTitle, TitleResult } from "./fetchTitle";
+import { fetchTitle } from "./fetchTitle";
 import async from "async";
 import dotenv from "dotenv";
 import { ServerMessages } from "./enums/messages"; // Import the message enum
+import { TitleResult } from "./interfaces/TitleResult";
 
 // Load environment variables from .env file
 dotenv.config();

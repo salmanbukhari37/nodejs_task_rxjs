@@ -1,12 +1,8 @@
-// fetchTitle.ts
 import * as http from "http";
 import * as https from "https";
 import { URL } from "url";
-
-export interface TitleResult {
-  address: string;
-  title: string;
-}
+import { FetchTitleStatus } from "./enums/fetchTitleStatus";
+import { TitleResult } from "./interfaces/TitleResult";
 
 export function fetchTitle(
   address: string,
@@ -41,12 +37,12 @@ export function fetchTitle(
 
     res.on("end", () => {
       const match = data.match(/<title>([^<]*)<\/title>/);
-      const title = match ? match[1] : "NO RESPONSE";
+      const title = match ? match[1] : FetchTitleStatus.NO_RESPONSE;
       callback(null, { address, title });
     });
   });
 
   request.on("error", () => {
-    callback(null, { address, title: "NO RESPONSE" });
+    callback(null, { address, title: FetchTitleStatus.NO_RESPONSE });
   });
 }
